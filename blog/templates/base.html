@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Blog{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}A blog about various topics and interests.{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}My Blog{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}A blog about various topics and interests.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/default-og-image.jpg' %}{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.3.0/alpine.js"></script>
+    <link rel="alternate" type="application/rss+xml" title="My Blog RSS Feed" href="{% url 'blog:rss_feed' %}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#f43f5e',
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-800 font-sans">
+    <header class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4" x-data="{ isOpen: false }">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center justify-between w-full md:w-auto">
+                    <a href="{% url 'blog:post_list' %}" class="text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent hover:scale-105 transition-transform">
+                        My Blog
+                    </a>
+                    <button @click="isOpen = !isOpen" class="md:hidden rounded-lg focus:outline-none focus:shadow-outline">
+                        <svg fill="currentColor" viewBox="0 0 20 20" class="w-6 h-6">
+                            <path x-show="!isOpen" fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z"></path>
+                            <path x-show="isOpen" fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="md:flex items-center" :class="{ 'block': isOpen, 'hidden': !isOpen }" x-cloak>
+                    <div class="flex flex-col md:flex-row md:items-center mt-4 md:mt-0">
+                        <a href="{% url 'blog:post_list' %}" class="text-gray-700 hover:text-primary px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">Home</a>
+                        <a href="#" class="text-gray-700 hover:text-primary px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">About</a>
+                        <a href="{% url 'blog:rss_feed' %}" class="text-gray-700 hover:text-primary px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">RSS Feed</a>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row md:items-center mt-4 md:mt-0 md:ml-6">
+                        <form action="{% url 'blog:search' %}" method="get" class="flex flex-col md:flex-row gap-2 mb-4 md:mb-0">
+                            <input type="text" name="q" placeholder="Search posts..." 
+                                class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm">
+                            <button type="submit" class="bg-primary hover:bg-secondary text-white font-semibold px-6 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                Search
+                            </button>
+                        </form>
+
+                        <div class="flex flex-col md:flex-row gap-2 md:ml-4">
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'profiles:profile' %}" class="text-gray-700 hover:text-primary px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors">Profile</a>
+                                <a href="{% url 'users:logout' %}" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg">Log Out</a>
+                            {% else %}
+                                <a href="{% url 'users:login' %}" class="bg-primary hover:bg-secondary text-white font-semibold px-6 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg">Log In</a>
+                                <a href="{% url 'users:signup' %}" class="bg-accent hover:bg-pink-600 text-white font-semibold px-6 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg">Sign Up</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="bg-white/80 backdrop-blur-md shadow-lg rounded-xl p-6">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-white/80 backdrop-blur-md shadow-lg mt-8">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-600 mb-4 md:mb-0">&copy; {% now "Y" %} My Blog. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+                        <span class="sr-only">Facebook</span>
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+                        <span class="sr-only">Twitter</span>
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.061a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.937 4.937 0 004.604 3.417 9.868 9.868 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.054 0 13.999-7.496 13.999-13.986 0-.209 0-.42-.015-.63a9.936 9.936 0 002.46-2.548l-.047-.02z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+                        <span class="sr-only">GitHub</span>
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

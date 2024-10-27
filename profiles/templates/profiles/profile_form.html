@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Edit Profile</h1>
+    <form method="post" enctype="multipart/form-data" class="bg-white shadow rounded-lg p-6">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="{{ user_form.first_name.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">First Name</label>
+            {{ user_form.first_name }}
+        </div>
+        <div class="mb-4">
+            <label for="{{ user_form.last_name.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Last Name</label>
+            {{ user_form.last_name }}
+        </div>
+        <div class="mb-4">
+            <label for="{{ user_form.email.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+            {{ user_form.email }}
+        </div>
+        <div class="mb-4">
+            <label for="{{ profile_form.bio.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Bio</label>
+            {{ profile_form.bio }}
+        </div>
+        <div class="mb-4">
+            <label for="{{ profile_form.location.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Location</label>
+            {{ profile_form.location }}
+        </div>
+        <div class="mb-4">
+            <label for="{{ profile_form.birth_date.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Birth Date</label>
+            {{ profile_form.birth_date }}
+        </div>
+        <div class="mb-4">
+            <label for="{{ profile_form.avatar.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Avatar</label>
+            {{ profile_form.avatar }}
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Save Changes
+        </button>
+    </form>
+</div>
+{% endblock %}
